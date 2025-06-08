@@ -29,16 +29,16 @@ This document details all features and functionality of WikiMediaTree, a hierarc
 
 **Acceptance Criteria:**
 - [ ] Blocks visually distinguish between Commons-only, Wikidata-only, and hybrid entities
-- [ ] **File count prominently displayed** (pictures/files in Commons category, as shown on Commons)
+- [ ] **File count prominently displayed** (files in Commons category, as shown on Commons)
 - [ ] **Subcategory count prominently displayed** (as shown on Commons category pages)
 - [ ] Connection status indicators clearly show Commons category presence
 - [ ] Connection status indicators clearly show Wikidata item presence
 - [ ] **Parent relationship type explicitly shown** (connected via Commons, Wikidata, or both)
-- [ ] **Blocks default to reduced size** but expandable with button
+- [ ] **Blocks default to reduced size** but expandable with dedicated expand button (shows additional details)
 - [ ] **Direct clickable links** to respective Commons and Wikidata pages
 - [ ] Visual indication when both category and Wikidata item exist for same concept
 
-**Technical Notes:** Use different CSS classes/styles for block types. Display counts exactly as Commons shows them. Implement clear connection indicators and expandable UI elements.
+**Technical Notes:** Use different CSS classes/styles for block types (e.g., .block--commons, .block--wikidata, .block--hybrid). Display counts exactly as Commons shows them. Implement clear connection indicators with icons or color coding. Create expandable UI elements with smooth animations and dedicated expand/collapse buttons.
 
 ---
 
@@ -75,22 +75,22 @@ This document details all features and functionality of WikiMediaTree, a hierarc
 
 ---
 
-### Feature 5: Photo Organization and Hierarchy Editing
-**Description:** Expandable block details with specific drag-and-drop functionality for organizing photos/files within hierarchies, plus general editing capabilities for moving things around in hierarchical structures.
+### Feature 5: File Organization and Hierarchy Editing
+**Description:** Expandable block details with specific drag-and-drop functionality for organizing files within hierarchies, plus general editing capabilities for moving things around in hierarchical structures.
 
-**User Story:** As a Commons contributor, I want to **sort photos/files in hierarchies by drag and drop** and **make edits by moving things around in the hierarchy** so that I can efficiently restructure content organization and clean up hierarchical relationships.
+**User Story:** As a Commons contributor, I want to **sort files in hierarchies by drag and drop** and **make edits by moving things around in the hierarchy** so that I can efficiently restructure content organization and clean up hierarchical relationships.
 
 **Acceptance Criteria:**
 - [ ] Blocks can be expanded to show detailed information
-- [ ] **Specific drag and drop**: Sort photos/files within hierarchies using drag and drop
+- [ ] **Specific drag and drop**: Sort files within hierarchies using drag and drop
 - [ ] **General editing**: Make edits by moving things around in hierarchy
 - [ ] **Hierarchy cleaning**: Tools for generally understanding, exploring, and cleaning hierarchies
 - [ ] Context menus provide relevant actions for each block type
-- [ ] Visual feedback during drag operations for photos/files
+- [ ] Visual feedback during drag operations for files (highlight drop zones, show drag preview)
 - [ ] Support for organizing content within hierarchical structures
 - [ ] Undo/redo functionality for hierarchy changes
 
-**Technical Notes:** Implement HTML5 drag and drop API specifically for photo/file organization within hierarchies. Include hierarchy editing tools for moving and reorganizing content. Focus on cleaning and organizing capabilities.
+**Technical Notes:** Implement HTML5 drag and drop API specifically for file organization within hierarchies. Include hierarchy editing tools for moving and reorganizing content. Focus on cleaning and organizing capabilities.
 
 ---
 
@@ -106,7 +106,7 @@ This document details all features and functionality of WikiMediaTree, a hierarc
 - [ ] **Basic information display**: Instance of (P31) 
 - [ ] **Basic information display**: Associated image (P18)
 - [ ] **Basic information display**: Other relevant Wikidata properties and values
-- [ ] **Panel behavior**: Can be expanded and collapsed
+- [ ] **Panel behavior**: Can be expanded and collapsed, triggered by clicking on blocks with Wikidata items
 - [ ] **Direct linking**: Include link to full Wikidata item page
 - [ ] Site panel integrates smoothly with block interface
 
@@ -123,7 +123,7 @@ This document details all features and functionality of WikiMediaTree, a hierarc
 - [ ] **Top left lines**: Lines positioned on top left side of blocks, moving up and disappearing
 - [ ] **Hover tooltips**: Category names appear when hovering over the top left lines
 - [ ] **Click navigation behavior**: Clicking lines makes **hierarchy move, new blocks appear, old hierarchy disappears**
-- [ ] **Expandable arrows**: Little arrows pointing down for children categories/items
+- [ ] **Expandable arrows**: Little arrows pointing down for children categories/items (click to load and display child blocks)
 - [ ] **Hierarchy switching**: When parent lines show different connection types (Commons vs Wikidata), enable switching between hierarchy views
 - [ ] Visual distinction between Commons and Wikidata relationship lines
 - [ ] Clear indication of which parent relationships are currently hidden

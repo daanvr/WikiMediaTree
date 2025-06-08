@@ -57,7 +57,7 @@ Blocks are the fundamental building units of WikiMediaTree:
 - **DataMapper**: Maps and correlates Commons and Wikidata entities
 
 #### 5. UI Components (`src/ui/`)
-- **SitePanel**: Expandable side panel for detailed Wikidata item information
+- **SitePanel**: Expandable site panel for detailed Wikidata item information
 - **BlockDetails**: Expandable block information display with file/subcategory counts
 - **VisualIndicators**: Top left lines, hover tooltips, and expandable arrows
 - **NavigationControls**: Canvas navigation and hierarchy transition controls  
@@ -167,7 +167,7 @@ WikiMediaTree/
   type: "commons|wikidata|hybrid",
   commonsData: {
     title: "Category:Example",
-    fileCount: 42,              // Pictures/files in Commons category
+    fileCount: 42,              // Files in Commons category
     subcategoryCount: 5,        // Subcategories (as shown on Commons)
     url: "https://commons.wikimedia.org/wiki/Category:Example"
   },

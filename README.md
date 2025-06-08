@@ -35,7 +35,7 @@ WikiMediaTree helps Wikimedians, developers, and content creators visualize and 
 - **Categories**: Always refers to Wikimedia Commons categories (e.g., Category:Example)  
 - **Blocks**: Building blocks representing either a Commons category, Wikidata item, or both
 - **Canvas**: The pannable, interactive visualization area
-- **Pictures/Files**: Terms used interchangeably - refers to media files in Commons categories
+- **Files**: Media files stored in Commons categories (images, videos, audio, etc.)
 - **Site Panel**: Expandable panel showing detailed Wikidata item information
 
 ### Block System (Built on Flexible Assumptions)
@@ -48,7 +48,7 @@ WikiMediaTree operates on the **flexible assumption** that most Commons categori
 - **Parent-Child Relationships**: Each block (except root) has a parent and potential children, like in a family tree
 
 Each block displays (exactly as shown on Commons):
-- **File count**: Number of pictures/files in Commons category (prominently displayed)
+- **File count**: Number of files in Commons category (prominently displayed)
 - **Subcategory count**: Number of subcategories (prominently displayed)
 - **Connection status**: Clear indicators showing Commons category presence, Wikidata item presence, or both
 - **Parent relationship type**: How the parent is connected (via Commons, Wikidata, or both)
@@ -162,6 +162,16 @@ See [API_ENDPOINTS.md](docs/API_ENDPOINTS.md) for detailed integration informati
 - Edge 79+
 
 *Mobile browsers are not supported - this is a desktop-only application.*
+
+## Error Handling
+
+WikiMediaTree gracefully handles various error scenarios:
+
+- **API Failures**: Network issues or API downtime display user-friendly error messages
+- **Missing Data**: Categories without items or items without categories are clearly indicated
+- **Malformed Responses**: Invalid API responses trigger fallback behaviors
+- **Rate Limiting**: Automatic retry logic with exponential backoff
+- **Empty Hierarchies**: Clear messaging when no content is available
 
 ## License
 

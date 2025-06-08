@@ -8,7 +8,7 @@ WikiMediaTree is a hierarchical visualization tool for exploring the relationshi
 - **Categories**: Always refers to Wikimedia Commons categories (e.g., Category:Example) 
 - **Blocks**: Building blocks representing either a Commons category, Wikidata item, or both
 - **Canvas**: The pannable, interactive visualization area
-- **Pictures/Files**: Terms used interchangeably - refers to media files in Commons categories
+- **Files**: Media files stored in Commons categories (images, videos, audio, etc.)
 - **Site Panel**: Expandable panel showing detailed Wikidata item information
 
 ## Functional Requirements
@@ -26,7 +26,7 @@ WikiMediaTree is a hierarchical visualization tool for exploring the relationshi
    - Each block represents a Commons category, Wikidata item, or both
    - Display block connection status indicators (Commons, Wikidata, or hybrid)
    - Show parent relationship type explicitly (connected via Commons, Wikidata, or both)
-   - Display file count (pictures/media files) from Commons categories
+   - Display file count (media files) from Commons categories
    - Display subcategory count from Commons categories  
    - Allow removing/quitting parts of the tree from current view
    - Provide direct links to respective Commons and Wikidata pages
@@ -48,7 +48,7 @@ WikiMediaTree is a hierarchical visualization tool for exploring the relationshi
 2. **User Goals**
    - Understand complex hierarchical relationships in Wikimedia ecosystem
    - Make edits by moving things around in hierarchies
-   - Sort photos/files within hierarchies using drag and drop
+   - Sort files within hierarchies using drag and drop
    - Explore and identify hierarchy mismatches between Commons and Wikidata
    - Clean and organize hierarchical structures
    - **Support transition**: Help Wikimedia Commons transition from traditional category-based organization to structured data approach
@@ -57,7 +57,7 @@ WikiMediaTree is a hierarchical visualization tool for exploring the relationshi
 
 ### Block Features
 1. **Display Information**
-   - File count (number of pictures/files in Commons category) - displayed prominently
+   - File count (number of files in Commons category) - displayed prominently
    - Subcategory count - displayed prominently (as shown on Commons)
    - Connection status indicators (Commons category, Wikidata item, or both)
    - Parent relationship type indicators (connected via Commons, Wikidata, or both)
@@ -65,15 +65,15 @@ WikiMediaTree is a hierarchical visualization tool for exploring the relationshi
    - Blocks default to reduced size but expandable with button
 
 2. **Specific Visual Elements**
-   - **Top left lines**: Lines moving up and disappearing showing additional parent categories not currently displayed
+   - **Top left lines**: Visual lines positioned on top left of blocks, extending upward and fading, indicating additional parent categories not currently displayed
    - **Hover tooltips**: Category names appear when hovering over the top left lines
    - **Click navigation**: Clicking lines makes hierarchy move, new blocks appear, old hierarchy disappears
-   - **Expandable arrows**: Little arrows pointing down for children categories/items
+   - **Expandable arrows**: Small downward-pointing arrows indicating available children, click to load and display child blocks in hierarchy
    - **Hierarchy switching**: When parent lines show different connection types, allow switching between Commons and Wikidata hierarchy views
 
 3. **Interaction Behaviors**
-   - Blocks can be expanded to show detailed information
-   - Drag and drop functionality specifically for sorting photos/files within hierarchies
+   - Blocks can be expanded via dedicated buttons to show detailed information (full file counts, category descriptions, additional metadata)
+   - Drag and drop functionality specifically for sorting files within hierarchies
    - Different visual states for Commons-only, Wikidata-only, or hybrid blocks
    - Context-sensitive actions based on block type
 
@@ -136,7 +136,7 @@ WikiMediaTree is a hierarchical visualization tool for exploring the relationshi
 8. **Hierarchy switching** between Commons and Wikidata works when different connection types exist
 9. File counts and subcategory counts are prominently displayed (as shown on Commons)
 10. Direct links to Commons and Wikidata pages function correctly
-11. **Drag and drop** functionality works specifically for sorting photos/files within hierarchies
+11. **Drag and drop** functionality works specifically for sorting files within hierarchies
 12. Tool serves as effective **transition aid** from category-based to structured data organization
 13. Flexible handling of categories without items and items without categories
 14. Visual identification of hierarchy mismatches between Commons and Wikidata
