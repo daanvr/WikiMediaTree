@@ -4,28 +4,31 @@ A hierarchical visualization tool for exploring the relationships between Wikime
 
 ## Overview
 
-WikiMediaTree helps Wikimedians, developers, and content creators visualize and organize the intricate connections between Commons categories and Wikidata items through **user-driven exploration**. Built around a flexible block-based system, it enables manual discovery of hierarchical structures, identification of mismatches, and serves as a **transition tool** to help Wikimedia Commons move from traditional category-based organization to structured data approaches.
+WikiMediaTree helps Wikimedians, developers, and content creators **explore and navigate** the intricate connections between Commons categories and Wikidata items through **user-driven exploration**. Built around a flexible block-based system, it enables manual discovery of hierarchical structures that are currently difficult to understand due to the chaotic and interwoven nature of Wikimedia hierarchies. The tool serves as an **exploration and navigation interface** that integrates with existing Wikimedia editing workflows.
 
-**Critical Design Principle**: The tool does NOT automatically create or display entire trees due to the chaotic nature of real hierarchies. Instead, it provides user-controlled exploration tools for step-by-step discovery and organization.
+**Critical Design Principle**: The tool does NOT automatically create or display entire trees because hierarchies typically have multiple parents and children per category/item, making automatic trees overwhelming with hundreds of interwoven nodes. Instead, it provides user-controlled exploration tools for step-by-step discovery and understanding.
 
 ### Key Features
 
-- **User-Driven Canvas**: Pan freely in all directions with manual hierarchy exploration (no automatic tree generation)
+- **User-Driven Canvas**: Pan freely in all directions with manual hierarchy exploration (never shows empty canvas - always keeps blocks visible)
 - **Detailed Block Visualization**: Visual blocks showing file counts, subcategory counts, and connection indicators exactly as shown on Commons
-- **Specific Navigation Elements**: Top left lines showing additional parents with hover tooltips and click navigation that replaces entire hierarchy view  
-- **Hierarchy Editing**: Make edits by moving things around, sort photos/files by drag and drop within hierarchies
-- **Transition Tool Support**: Help Commons transition from category-based to structured data organization
-- **Flexible Relationship Handling**: Support categories without items, items without categories, and identify missing connections
+- **Specific Navigation Elements**: Small top left lines extending upward and fading, showing additional parents with hover tooltips and click navigation that replaces entire hierarchy view  
+- **Ecosystem Toggle**: Switch between Commons-only, Wikidata-only, or combined view to focus exploration on specific ecosystems
+- **Exploration-First Approach**: Primary focus on navigation and understanding hierarchies, with direct links to existing Wikimedia interfaces for editing
+- **API Status Indicators**: Clear visual feedback about loading states, cached data, and API activity
+- **Flexible Relationship Handling**: Support categories without items, items without categories, and identify missing connections with links to creation pages
 - **Wikidata Site Panel**: Expandable panel showing label, description, instance of, image, and other relevant properties
-- **Mismatch Exploration**: Explore where Commons and Wikidata hierarchies don't align for creating missing entities
+- **Hierarchy Problem Solving**: Address current pain points where users get lost in subcategories or can't see the complete hierarchical picture
 
 ## Target Users
 
-- **Wikimedia Developers**: Understanding and improving ecosystem architecture
-- **Content Creators**: Organizing media and content within appropriate hierarchies
-- **Wikidata Editors**: Managing item relationships and structured data
-- **Commons Contributors**: Organizing categories and files
-- **General Wikimedians**: Exploring and understanding project relationships
+**Primary Users**: Manual editors who need overview of hierarchical structure. These users may be technical but focus primarily on data contribution and content organization.
+
+- **Commons Contributors**: Understanding category structures and finding appropriate placement for media files
+- **Wikidata Editors**: Navigating complex property-based hierarchies and understanding item relationships  
+- **Content Organizers**: Getting overview of chaotic category systems to make informed organizational decisions
+- **Hierarchy Researchers**: Exploring where Commons categories and Wikidata items don't align for improvement opportunities
+- **General Wikimedians**: Understanding the complete hierarchical picture that's currently fragmented across different interfaces
 
 ## Core Concepts
 
@@ -66,18 +69,23 @@ Each block displays (exactly as shown on Commons):
 
 ### Quick Start
 
+**Typical User Session**: Search → Explore → Navigate to External Editing
+
 1. Clone this repository
 2. Open `index.html` in your browser
-3. **Search for a specific category or item** to begin exploration
-4. **Pan freely** across the canvas in all directions using mouse/trackpad
-5. **Hover over top left lines** to see additional parent category names
-6. **Click on lines** to navigate - hierarchy will move, new blocks appear, old hierarchy disappears
-7. **Click expandable arrows** (pointing down) to grow tree in that direction
-8. **Expand blocks** with buttons to see detailed information
-9. **Use site panel** when Wikidata items exist to see detailed properties
-10. **Remove/quit parts** of the tree as needed to focus on specific areas
+3. **Search for a specific category or Wikidata item** to begin exploration
+4. **Explore the hierarchy** by clicking on subcategories, items, and sub-blocks
+5. **Pan freely** across the canvas (never shows empty space - always keeps blocks visible)
+6. **Use ecosystem toggle** to focus on Commons-only, Wikidata-only, or combined view
+7. **Hover over small top left lines** to see additional parent category names
+8. **Click on lines** to navigate - hierarchy moves, new blocks appear, old hierarchy disappears  
+9. **Click expandable arrows** (pointing down) to load child blocks
+10. **Expand blocks** with buttons to see detailed file counts and metadata
+11. **Use site panel** when Wikidata items exist to see comprehensive properties
+12. **Click direct links** to visit Commons categories or Wikidata items for actual editing
+13. **Monitor API status indicator** for loading/caching information
 
-**Remember**: This is user-driven exploration - the tool doesn't automatically create trees!
+**Remember**: This tool is for exploration and navigation - editing happens in existing Wikimedia interfaces!
 
 ## Documentation
 
@@ -130,19 +138,23 @@ We welcome contributions! Please:
 
 ## Roadmap
 
-### MVP Features (Phase 1)
-- Interactive canvas with pan/zoom
-- Basic block visualization
-- Hierarchical tree navigation
-- Visual hierarchy indicators
-- Wikidata information panel
+### MVP Features (Phase 1) - Exploration Focus
+- Interactive canvas with pan/zoom (bounded to always show blocks)
+- Block visualization with connection status indicators
+- User-driven hierarchical tree navigation
+- Ecosystem toggle (Commons/Wikidata/combined views)
+- Small top left lines for additional parent navigation
+- API status indicators and caching
+- Wikidata site panel with basic properties
+- Direct links to existing Wikimedia editing interfaces
 
-### Future Enhancements (Phase 2+)
-- Advanced drag & drop functionality
-- Hierarchy view switching
-- Mismatch detection and highlighting
-- Search and navigation tools
-- Collaborative editing capabilities
+### Future Enhancements (Phase 2+) - Editing Integration
+- Research and implement key Wikidata hierarchical properties
+- Missing entity creation workflow integration  
+- Advanced hierarchy manipulation (requires authentication)
+- File organization within categories (needs UI/UX research)
+- Enhanced visual hierarchy problem detection
+- Performance optimization for large hierarchies
 
 ## API Integration
 
@@ -172,6 +184,28 @@ WikiMediaTree gracefully handles various error scenarios:
 - **Malformed Responses**: Invalid API responses trigger fallback behaviors
 - **Rate Limiting**: Automatic retry logic with exponential backoff
 - **Empty Hierarchies**: Clear messaging when no content is available
+
+## Problem Statement
+
+WikiMediaTree addresses specific pain points in current Wikimedia workflows:
+
+### Commons Navigation Issues
+- **Limited hierarchical visibility**: Commons shows subcategories and parent categories only as lists
+- **Navigation confusion**: Users get lost in subcategories without knowing where they came from or how to go back  
+- **Fragmented overview**: Impossible to see the complete hierarchical picture
+- **Chaotic organization**: Categories are inconsistent, based on year, user uploads, or arbitrary organizational schemes
+
+### Wikidata Complexity  
+- **Multiple hierarchical properties**: Subclass (P279), located in administrative territory (P131), and many other properties create complex hierarchical relationships
+- **Property navigation difficulty**: Very complicated to find correct parent and child items
+- **Scattered hierarchy definition**: Different properties define different types of hierarchical relationships
+
+### Structural Problems
+- **Interwoven hierarchies**: Single files can end up in vastly different category paths when traversing upward
+- **Multiple parents/children**: Each category typically has multiple parents and children, making visualization complex
+- **Historical inconsistency**: Category systems grew organically over time with different organizational philosophies
+
+WikiMediaTree provides a unified exploration interface to understand these complex, chaotic, and interwoven hierarchies.
 
 ## License
 

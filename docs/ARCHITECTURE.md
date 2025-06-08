@@ -1,17 +1,20 @@
 # Architecture Documentation
 
 ## System Overview
-WikiMediaTree is a client-side hierarchical visualization application built around an interactive canvas system supporting user-driven exploration of Wikimedia hierarchies. The architecture centers on a block-based approach where each block represents Commons categories, Wikidata items, or both, connected in family tree-like structures. **Critical design principle**: The tool does NOT automatically generate trees due to the chaotic nature of real hierarchies - instead, it enables user-controlled exploration and organization.
+WikiMediaTree is a client-side hierarchical visualization application built around an interactive canvas system supporting user-driven exploration of Wikimedia hierarchies. The architecture centers on a block-based approach where each block represents Commons categories, Wikidata items, or both, connected in family tree-like structures. **Critical design principle**: The tool does NOT automatically generate trees because hierarchies have multiple parents and children per category/item, making automatic trees overwhelming with hundreds of interwoven nodes. **Primary focus**: Exploration and navigation interface with integration to existing Wikimedia editing workflows.
 
 ## Architecture Principles
 - Client-side only application
-- User-driven exploration (no automatic tree generation)
+- **Exploration-first approach** with external editing integration
+- User-driven exploration (no automatic tree generation due to overwhelming hierarchy complexity)
 - Modular component design
 - Separation of concerns
 - Modern JavaScript patterns
-- Canvas-based visualization with smooth navigation
+- Canvas-based visualization with smooth navigation (never empty canvas - always visible blocks)
 - Block-centric data model with flexible Commons-Wikidata relationships
-- Support for Commons transition to structured data
+- **Ecosystem toggle** capability for focused exploration
+- **API status transparency** with caching and loading state indicators
+- Support for Commons transition to structured data through exploration insights
 
 ## Core Concepts
 
@@ -23,12 +26,14 @@ Blocks are the fundamental building units of WikiMediaTree:
 - **Parent-Child Relationships**: Each block (except root) has a parent and may have children
 
 ### Canvas Architecture
-- **Interactive Canvas**: Pannable in all directions using Canvas API or SVG
-- **Viewport Management**: Handles visible area and coordinate transformations
-- **Zoom/Pan Controls**: Smooth navigation across large hierarchies
+- **Interactive Canvas**: Pannable in all directions using Canvas API or SVG (**bounded to never show empty space**)
+- **Viewport Management**: Handles visible area and coordinate transformations, ensures blocks always visible
+- **Zoom/Pan Controls**: Smooth navigation across large hierarchies (hundreds of interwoven nodes)
 - **Dynamic Navigation**: User-controlled hierarchy exploration with focus changes
 - **Hierarchy Transitions**: Clicking navigation elements causes hierarchy to move, new blocks appear, old hierarchy disappears
-- **Visual Indicators**: Top left lines showing additional parents, hover tooltips, expandable arrows
+- **Visual Indicators**: Small top left lines extending upward and fading, hover tooltips, expandable arrows
+- **Ecosystem Toggle**: Filter and switch between Commons-only, Wikidata-only, or combined views
+- **API Status Display**: Visual indicators for loading, caching, and network activity states
 
 ## System Components
 
@@ -59,10 +64,12 @@ Blocks are the fundamental building units of WikiMediaTree:
 #### 5. UI Components (`src/ui/`)
 - **SitePanel**: Expandable site panel for detailed Wikidata item information
 - **BlockDetails**: Expandable block information display with file/subcategory counts
-- **VisualIndicators**: Top left lines, hover tooltips, and expandable arrows
+- **VisualIndicators**: Small top left lines extending upward and fading, hover tooltips, and expandable arrows
 - **NavigationControls**: Canvas navigation and hierarchy transition controls  
-- **HierarchySwitcher**: Toggle between Commons and Wikidata hierarchy views
-- **StatusIndicators**: Visual indicators for block types and parent relationships
+- **EcosystemToggle**: Toggle between Commons-only, Wikidata-only, or combined views
+- **APIStatusIndicator**: Loading states, cached data indicators, and network activity feedback
+- **ExternalLinkManager**: Direct links to Commons/Wikidata pages and creation workflows
+- **StatusIndicators**: Visual indicators for block types, parent relationships, and missing entities
 
 ### Data Flow
 
@@ -89,6 +96,21 @@ Blocks are the fundamental building units of WikiMediaTree:
 5. **Site Panel Display**
    ```
    Wikidata Block → Site Panel Trigger → SPARQL Query → Data Formatting → Panel Display
+   ```
+
+6. **Ecosystem Toggle**
+   ```
+   Toggle Click → Ecosystem Filter → Block Re-rendering → Connection Updates → Canvas Refresh
+   ```
+
+7. **External Editing Integration**
+   ```
+   Block Link Click → URL Generation → External Navigation → (User Returns) → Context Preservation
+   ```
+
+8. **API Status Updates**
+   ```
+   API Call Start → Status Indicator Update → Request Processing → Response/Error → Status Update → Cache Management
    ```
 
 ### Component Structure
@@ -118,7 +140,9 @@ WikiMediaTree/
 │   │   ├── BlockDetails.js
 │   │   ├── VisualIndicators.js
 │   │   ├── NavigationControls.js
-│   │   ├── HierarchySwitcher.js
+│   │   ├── EcosystemToggle.js
+│   │   ├── APIStatusIndicator.js
+│   │   ├── ExternalLinkManager.js
 │   │   └── StatusIndicators.js
 │   ├── utils/
 │   │   ├── Logger.js
@@ -184,7 +208,7 @@ WikiMediaTree/
     parentId: "parent-block-id",
     childrenIds: ["child1-id", "child2-id"],
     parentType: "commons|wikidata|both",  // How parent is connected
-    additionalParents: [                   // For top left lines
+    additionalParents: [                   // For small top left lines
       { id: "parent2-id", name: "Category:Parent2", type: "commons" },
       { id: "parent3-id", name: "Category:Parent3", type: "wikidata" }
     ]
@@ -194,7 +218,21 @@ WikiMediaTree/
     expanded: false,
     showSitePanel: false,
     hasChildren: true,          // Show expandable arrow
-    canSwitchHierarchy: true    // Different connection types available
+    canSwitchHierarchy: true,   // Different connection types available
+    ecosystemVisibility: {     // For ecosystem toggle
+      commons: true,
+      wikidata: true,
+      currentFocus: "combined"  // "commons"|"wikidata"|"combined"
+    },
+    loadingState: "loaded",     // "loading"|"loaded"|"error"|"cached"
+    missingEntities: {          // For missing entity indication
+      needsCommonsCategory: false,
+      needsWikidataItem: false,
+      creationLinks: {
+        commonsCreate: "url-to-creation-page",
+        wikidataCreate: "url-to-creation-page"
+      }
+    }
   }
 }
 ```

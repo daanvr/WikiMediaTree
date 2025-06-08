@@ -1,17 +1,18 @@
 # Features Specification
 
 ## Overview
-This document details all features and functionality of WikiMediaTree, a hierarchical visualization tool for exploring relationships between Wikimedia Commons categories and Wikidata items.
+This document details all features and functionality of WikiMediaTree, a hierarchical visualization tool for exploring relationships between Wikimedia Commons categories and Wikidata items. The tool focuses primarily on **exploration and navigation** with integration to existing Wikimedia editing interfaces.
 
 ## Core Features
 
 ### Feature 1: User-Driven Interactive Canvas
-**Description:** A pannable, zoomable canvas that serves as the primary interface for user-controlled exploration of hierarchical relationships in all directions. **Critical**: No automatic tree generation due to the chaotic nature of real hierarchies.
+**Description:** A pannable, zoomable canvas that serves as the primary interface for user-controlled exploration of hierarchical relationships in all directions. **Critical**: No automatic tree generation because hierarchies have multiple parents and children per category/item, making automatic trees overwhelming with hundreds of interwoven nodes.
 
-**User Story:** As a Wikimedian, I want to freely navigate and manually explore hierarchical structures so that I can understand complex category and item relationships through controlled, step-by-step discovery rather than overwhelming automatic displays.
+**User Story:** As a manual editor who needs hierarchical structure overview, I want to freely navigate and manually explore hierarchical structures so that I can understand complex category and item relationships through controlled, step-by-step discovery rather than overwhelming automatic displays.
 
 **Acceptance Criteria:**
 - [ ] Canvas supports smooth panning in all directions (up, down, left, right, diagonal)
+- [ ] **Canvas boundaries**: Never shows empty canvas - always keeps at least one block visible to prevent users getting lost
 - [ ] Users can zoom in and out to view different levels of detail
 - [ ] **User-driven exploration**: Tool does NOT automatically create or display entire trees
 - [ ] Canvas performance remains smooth with user-controlled hierarchy growth
@@ -75,8 +76,8 @@ This document details all features and functionality of WikiMediaTree, a hierarc
 
 ---
 
-### Feature 5: File Organization and Hierarchy Editing
-**Description:** Expandable block details with specific drag-and-drop functionality for organizing files within hierarchies, plus general editing capabilities for moving things around in hierarchical structures.
+### Feature 5: File Organization and Hierarchy Editing (Future/Research Phase)
+**Description:** Expandable block details with specific drag-and-drop functionality for organizing files within hierarchies, plus general editing capabilities for moving things around in hierarchical structures. **Note**: This feature is parked for future development pending UI/UX research and user testing.
 
 **User Story:** As a Commons contributor, I want to **sort files in hierarchies by drag and drop** and **make edits by moving things around in the hierarchy** so that I can efficiently restructure content organization and clean up hierarchical relationships.
 
@@ -90,7 +91,7 @@ This document details all features and functionality of WikiMediaTree, a hierarc
 - [ ] Support for organizing content within hierarchical structures
 - [ ] Undo/redo functionality for hierarchy changes
 
-**Technical Notes:** Implement HTML5 drag and drop API specifically for file organization within hierarchies. Include hierarchy editing tools for moving and reorganizing content. Focus on cleaning and organizing capabilities.
+**Technical Notes:** **FUTURE IMPLEMENTATION** - Requires UI/UX research and user testing. Would implement HTML5 drag and drop API specifically for file organization within hierarchies. May require side panel or alternative UI approach for showing file hierarchies. Authentication needed for actual editing operations.
 
 ---
 
@@ -114,15 +115,53 @@ This document details all features and functionality of WikiMediaTree, a hierarc
 
 ---
 
-### Feature 7: Specific Visual Hierarchy Indicators
-**Description:** Precise visual elements showing additional parent categories with specific positioning, hover behaviors, and navigation actions that transform the entire hierarchy view.
+### Feature 6: Ecosystem Toggle Functionality
+**Description:** Toggle capability allowing users to focus exploration on Commons-only, Wikidata-only, or combined ecosystem views to reduce complexity and enable focused analysis of specific hierarchical systems.
 
-**User Story:** As a general Wikimedian, I want to see **lines on the top left side moving up and disappearing** that show additional parent categories, with category names appearing on hover and click navigation that completely changes the hierarchy view.
+**User Story:** As a hierarchical researcher, I want to toggle between Commons categories, Wikidata items, or combined views so that I can focus my exploration on specific ecosystems and understand each system independently before analyzing their relationships.
 
 **Acceptance Criteria:**
-- [ ] **Top left lines**: Lines positioned on top left side of blocks, moving up and disappearing
-- [ ] **Hover tooltips**: Category names appear when hovering over the top left lines
+- [ ] **Toggle options**: Three view modes - Commons-only, Wikidata-only, Combined (both)
+- [ ] **Visual filtering**: Blocks and connections change based on selected ecosystem focus
+- [ ] **State persistence**: Current toggle selection maintained during navigation
+- [ ] **Clear indication**: UI clearly shows which ecosystem mode is currently active  
+- [ ] **Smooth transitions**: Switching between modes provides smooth visual transitions
+- [ ] **Mode-specific navigation**: Top left lines and parent/child relationships respect current ecosystem focus
+- [ ] **Search integration**: Search results filtered by current ecosystem selection
+
+**Technical Notes:** Implement view state management with ecosystem filtering logic. Update block rendering, connection drawing, and navigation systems to respect current ecosystem focus. Include visual indicators and smooth transition animations.
+
+---
+
+### Feature 7: API Status and Activity Indicators
+**Description:** Clear visual feedback system showing API loading states, cached data status, and network activity to keep users informed about data freshness and system responsiveness.
+
+**User Story:** As a user exploring hierarchies, I want to understand when data is loading, cached, or stale so that I can make informed decisions about the reliability of the information I'm viewing and understand system responsiveness.
+
+**Acceptance Criteria:**
+- [ ] **Status indicator placement**: Visible indicator in corner of canvas or underneath it
+- [ ] **Loading states**: Clear indication when API calls are in progress
+- [ ] **Cached data indication**: Visual indication when displaying cached/stale data
+- [ ] **Network activity feedback**: Show active API requests and completion status
+- [ ] **Error state display**: Clear messaging for API failures or network issues
+- [ ] **Data freshness indicators**: Timestamp or freshness indicators for cached content
+- [ ] **Non-intrusive design**: Status indicators don't interfere with exploration workflow
+
+**Technical Notes:** Implement status indicator component with API call monitoring. Include caching layer status tracking and user-friendly error messaging. Position indicators to be visible but non-intrusive.
+
+---
+
+### Feature 8: Specific Visual Hierarchy Indicators  
+**Description:** Small visual lines extending from top left area of blocks, extending upward and fading to indicate additional parent categories not currently displayed. Includes hover tooltips and click navigation that completely replaces the current hierarchy view.
+
+**User Story:** As a general Wikimedian exploring hierarchies, I want to see **small lines from the top left area extending upward and disappearing** that show additional parent categories, with category names appearing on hover and click navigation that makes the hierarchy move to show new blocks while old hierarchy disappears.
+
+**Acceptance Criteria:**
+- [ ] **Small top left lines**: Lines extending from top left area on top side of blocks, small and disappearing quickly
+- [ ] **Hover tooltips**: Parent category/item names appear when hovering over the top left lines
 - [ ] **Click navigation behavior**: Clicking lines makes **hierarchy move, new blocks appear, old hierarchy disappears**
+- [ ] **Multiple parent handling**: If too many parents exist, show most important ones with dropdown to select others
+- [ ] **Parent indication purpose**: Let users know if there are and how many additional parent categories/items for this block that could be opened and explored
 - [ ] **Expandable arrows**: Little arrows pointing down for children categories/items (click to load and display child blocks)
 - [ ] **Hierarchy switching**: When parent lines show different connection types (Commons vs Wikidata), enable switching between hierarchy views
 - [ ] Visual distinction between Commons and Wikidata relationship lines
@@ -149,7 +188,25 @@ This document details all features and functionality of WikiMediaTree, a hierarc
 
 ---
 
-### Feature 9: Transition Tool for Structured Data
+### Feature 9: External Editing Integration
+**Description:** Seamless integration with existing Wikimedia editing interfaces through direct links and missing entity creation workflows, supporting the exploration-first approach by guiding users to appropriate editing tools.
+
+**User Story:** As an editor exploring hierarchies, I want direct access to existing Wikimedia editing interfaces and creation tools so that I can seamlessly transition from exploration to actual editing without losing context or having to search for the right pages.
+
+**Acceptance Criteria:**
+- [ ] **Direct links**: Clickable links to Commons category pages and Wikidata item pages from all blocks
+- [ ] **Missing entity indication**: Clear visual indication when a block lacks either a category or item
+- [ ] **Creation workflow links**: Direct links to creation pages for missing categories or items  
+- [ ] **URL parameter passing**: Include parent category or item information as URL variables when linking to creation pages
+- [ ] **Context preservation**: Maintain exploration context when users return from external editing
+- [ ] **Authentication awareness**: Clear indication that actual editing happens in external interfaces (no authentication in WikiMediaTree)
+- [ ] **Exploration focus**: Tool serves primarily as exploration and navigation interface, not direct editing tool
+
+**Technical Notes:** Implement direct linking system to appropriate Wikimedia interfaces. Create URL parameter generation for creation workflows. Design clear visual indicators for missing entities and available editing actions.
+
+---
+
+### Feature 10: Transition Tool for Structured Data
 **Description:** Detection and highlighting of inconsistencies between Commons category hierarchies and Wikidata item hierarchies, specifically designed as a tool for helping Wikimedia Commons transition from traditional category-based organization to structured data approach.
 
 **User Story:** As a structured data advocate, I want to **explore where the hierarchy does not match between Wikimedia Commons and Wikidata** so that I can **create and enrich missing corresponding categories or items** and help **transition Commons from category-based to structured data organization**.
@@ -217,13 +274,16 @@ This document details all features and functionality of WikiMediaTree, a hierarc
 | Interactive Canvas | High | High | High | ✓ |
 | Block-Based Visualization | High | Medium | High | ✓ |
 | Hierarchical Tree Navigation | High | Medium | High | ✓ |
-| Visual Hierarchy Indicators | Medium | Low | Medium | ✓ |
-| Wikidata Information Panel | Medium | Medium | Medium | ✓ |
+| Ecosystem Toggle | High | Medium | High | ✓ |
+| API Status Indicators | High | Low | Medium | ✓ |
+| Visual Hierarchy Indicators | High | Medium | High | ✓ |
+| External Editing Integration | High | Low | High | ✓ |
+| Wikidata Site Panel | Medium | Medium | Medium | ✓ |
 | Hierarchy View Switching | Medium | Medium | High | |
-| Advanced Block Interactions | Low | High | Medium | |
-| Tree Manipulation Tools | Low | Medium | Low | |
-| Mismatch Detection | Low | High | High | |
+| Transition Tool for Structured Data | Medium | High | High | |
 | Search and Navigation | Medium | Medium | Medium | |
+| Tree Manipulation Tools | Low | Medium | Low | |
+| File Organization (Future) | Low | High | Medium | |
 
 ---
 *This document should be updated as features are defined and implemented*

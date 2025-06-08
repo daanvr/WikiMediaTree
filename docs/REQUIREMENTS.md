@@ -1,7 +1,7 @@
 # Requirements Specification
 
 ## Overview
-WikiMediaTree is a hierarchical visualization tool for exploring the relationships between Wikimedia Commons categories and Wikidata items. It provides an interactive canvas for understanding, navigating, and managing the complex hierarchies within the Wikimedia ecosystem.
+WikiMediaTree is a hierarchical visualization tool for exploring the relationships between Wikimedia Commons categories and Wikidata items. It provides an interactive canvas for understanding and navigating the complex, chaotic, and interwoven hierarchies within the Wikimedia ecosystem. **Primary focus**: Exploration and navigation with integration to existing Wikimedia editing workflows.
 
 ## Terminology
 - **Items**: Always refers to Wikidata items (e.g., Q12345)
@@ -16,11 +16,12 @@ WikiMediaTree is a hierarchical visualization tool for exploring the relationshi
 ### Core Functionality
 1. **User-Driven Hierarchical Visualization**
    - Display hierarchies as family tree-like structures on an interactive canvas
-   - Support panning in all directions across the canvas
-   - Show parent-child relationships between blocks
+   - Support panning in all directions across the canvas (**never show empty canvas** - always keep blocks visible)
+   - Show parent-child relationships between blocks  
    - Allow manual tree growth in any direction based on user exploration
-   - **Critical**: Tool does NOT automatically create trees (real hierarchies are chaotic)
+   - **Critical**: Tool does NOT automatically create trees because hierarchies have multiple parents and children per category/item, making automatic trees overwhelming with hundreds of interwoven nodes
    - User controls which parts of the hierarchy to explore and display
+   - **Ecosystem toggle**: Allow users to focus on Commons-only, Wikidata-only, or combined views
 
 2. **Block Management**
    - Each block represents a Commons category, Wikidata item, or both
@@ -40,20 +41,21 @@ WikiMediaTree is a hierarchical visualization tool for exploring the relationshi
 
 ### User Requirements
 1. **Target Users**
-   - Developers in the Wikimedia ecosystem
-   - Content creators and editors
-   - General Wikimedians
-   - Commons and Wikidata editors
+   - **Primary users**: Manual editors who need hierarchical structure overview (may be technical but focus on data contribution)
+   - Commons contributors organizing media files
+   - Wikidata editors navigating property-based hierarchies  
+   - Content organizers needing overview of chaotic category systems
+   - Hierarchy researchers exploring Commons-Wikidata alignment issues
 
 2. **User Goals**
-   - Understand complex hierarchical relationships in Wikimedia ecosystem
-   - Make edits by moving things around in hierarchies
-   - Sort files within hierarchies using drag and drop
-   - Explore and identify hierarchy mismatches between Commons and Wikidata
-   - Clean and organize hierarchical structures
+   - **Primary goal**: Explore and navigate complex hierarchical relationships to get complete overview
+   - Address current pain points: getting lost in subcategories, seeing only fragmented list views, difficulty finding parent/child relationships
+   - Understand interwoven hierarchies where single files can end up in vastly different category paths
+   - Navigate complex Wikidata property-based hierarchies (subclass, located in, etc.)
+   - Explore and identify hierarchy mismatches between Commons and Wikidata  
+   - Use exploration insights to make informed editing decisions in existing Wikimedia interfaces
    - **Support transition**: Help Wikimedia Commons transition from traditional category-based organization to structured data approach
-   - Create and enrich missing corresponding categories or items where applicable
-   - Generally explore, understand, and improve hierarchical organization
+   - Identify missing corresponding categories or items for external creation
 
 ### Block Features
 1. **Display Information**
@@ -78,7 +80,7 @@ WikiMediaTree is a hierarchical visualization tool for exploring the relationshi
    - Context-sensitive actions based on block type
 
 ### Wikidata Integration
-1. **Site Panel** (Expandable Side Panel)
+1. **Site Panel** (Expandable Site Panel)
    - **Trigger**: When a Wikidata item exists for a block, make expandable site panel available
    - **Basic Information Display**: 
      - Label (item name)
@@ -88,6 +90,22 @@ WikiMediaTree is a hierarchical visualization tool for exploring the relationshi
      - Other relevant Wikidata properties and values
    - **Panel Behavior**: Can be expanded/collapsed, shows comprehensive item details
    - **Direct linking**: Include link to full Wikidata item page
+
+### External Integration Requirements
+1. **API Status and Activity Indicators**
+   - **Status indicator placement**: Visible indicator in corner of canvas or underneath it
+   - **Loading states**: Clear indication when API calls are in progress
+   - **Cached data indication**: Visual indication when displaying cached/stale data with reasonable size limits
+   - **Network activity feedback**: Show active API requests and completion status
+   - **Error state display**: Clear messaging for API failures or network issues
+   - **Non-intrusive design**: Status indicators don't interfere with exploration workflow
+
+2. **External Editing Integration**
+   - **Direct links**: Clickable links to Commons category pages and Wikidata item pages from all blocks
+   - **Missing entity indication**: Clear visual indication when a block lacks either a category or item
+   - **Creation workflow links**: Direct links to creation pages for missing categories or items with URL parameters for parent context when possible
+   - **Authentication awareness**: Clear indication that actual editing happens in external interfaces (no authentication in WikiMediaTree)
+   - **Exploration focus**: Tool serves primarily as exploration and navigation interface
 
 ### Performance Requirements
 - Smooth panning and zooming on canvas
@@ -127,20 +145,23 @@ WikiMediaTree is a hierarchical visualization tool for exploring the relationshi
 
 ## Acceptance Criteria
 1. Users can visualize hierarchies as interactive family trees through user-driven exploration
-2. Users can pan freely across the canvas in all directions with smooth performance
-3. Blocks correctly display Commons category and Wikidata item status with clear indicators
-4. **Top left lines** show additional parents with hover tooltips displaying category names
-5. **Click navigation** on lines causes hierarchy to move, new blocks appear, old hierarchy disappears
-6. Users can expand/collapse hierarchy branches using expandable arrows pointing down
-7. **Site panel** displays comprehensive Wikidata information (label, description, instance of, image)
-8. **Hierarchy switching** between Commons and Wikidata works when different connection types exist
-9. File counts and subcategory counts are prominently displayed (as shown on Commons)
-10. Direct links to Commons and Wikidata pages function correctly
-11. **Drag and drop** functionality works specifically for sorting files within hierarchies
-12. Tool serves as effective **transition aid** from category-based to structured data organization
-13. Flexible handling of categories without items and items without categories
-14. Visual identification of hierarchy mismatches between Commons and Wikidata
-15. Ability to remove/quit parts of tree from current view
+2. Users can pan freely across the canvas in all directions with smooth performance (**never shows empty canvas**)
+3. **Ecosystem toggle** allows focusing on Commons-only, Wikidata-only, or combined views
+4. **API status indicators** clearly show loading states, cached data, and network activity 
+5. Blocks correctly display Commons category and Wikidata item status with clear indicators
+6. **Small top left lines** from top left area show additional parents with hover tooltips displaying category names
+7. **Click navigation** on lines causes hierarchy to move, new blocks appear, old hierarchy disappears
+8. Users can expand/collapse hierarchy branches using expandable arrows pointing down
+9. **Site panel** displays comprehensive Wikidata information (label, description, instance of, image)
+10. **Direct links** to Commons and Wikidata pages function correctly for external editing
+11. **Missing entity indication** clearly shows when categories or items don't exist with links to creation pages
+12. File counts and subcategory counts are prominently displayed (as shown on Commons)
+13. **Exploration-first approach** - tool serves primarily as navigation interface with external editing integration
+14. Tool serves as effective **transition aid** from category-based to structured data organization
+15. Flexible handling of categories without items and items without categories
+16. Visual identification of hierarchy mismatches between Commons and Wikidata
+17. Ability to remove/quit parts of tree from current view
+18. **Canvas boundaries** prevent users from getting lost by always showing visible blocks
 
 ---
 *This document should be updated as requirements evolve*
