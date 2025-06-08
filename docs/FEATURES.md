@@ -5,36 +5,40 @@ This document details all features and functionality of WikiMediaTree, a hierarc
 
 ## Core Features
 
-### Feature 1: Interactive Canvas
-**Description:** A pannable, zoomable canvas that serves as the primary interface for visualizing hierarchical relationships in all directions.
+### Feature 1: User-Driven Interactive Canvas
+**Description:** A pannable, zoomable canvas that serves as the primary interface for user-controlled exploration of hierarchical relationships in all directions. **Critical**: No automatic tree generation due to the chaotic nature of real hierarchies.
 
-**User Story:** As a Wikimedian, I want to freely navigate across large hierarchical structures so that I can explore complex category and item relationships without being constrained by traditional page-based navigation.
+**User Story:** As a Wikimedian, I want to freely navigate and manually explore hierarchical structures so that I can understand complex category and item relationships through controlled, step-by-step discovery rather than overwhelming automatic displays.
 
 **Acceptance Criteria:**
 - [ ] Canvas supports smooth panning in all directions (up, down, left, right, diagonal)
 - [ ] Users can zoom in and out to view different levels of detail
-- [ ] Canvas performance remains smooth with large numbers of blocks
-- [ ] Viewport shows current position indicator
-- [ ] Canvas boundaries adapt dynamically to content
+- [ ] **User-driven exploration**: Tool does NOT automatically create or display entire trees
+- [ ] Canvas performance remains smooth with user-controlled hierarchy growth
+- [ ] Users control which parts of hierarchy to explore and display
+- [ ] Ability to remove/quit parts of tree from current view
 
-**Technical Notes:** Implement using Canvas API with coordinate transformation system and viewport management. Include requestAnimationFrame for smooth animations.
+**Technical Notes:** Implement using Canvas API with coordinate transformation system and viewport management. Include requestAnimationFrame for smooth animations. Emphasize user control over automatic generation.
 
 ---
 
-### Feature 2: Block-Based Visualization
-**Description:** Visual representation of Commons categories and Wikidata items as interactive blocks that form the building blocks of hierarchical trees.
+### Feature 2: Detailed Block-Based Visualization
+**Description:** Visual representation of Commons categories and Wikidata items as interactive blocks showing comprehensive information exactly as displayed on Commons, with clear indicators for connection types and relationships.
 
-**User Story:** As a content creator, I want to see clear visual distinctions between Commons categories, Wikidata items, and hybrid entities so that I can understand the structure and identify missing connections.
+**User Story:** As a content creator, I want to see clear visual distinctions between Commons categories, Wikidata items, and hybrid entities with detailed file/subcategory counts (as shown on Commons) so that I can understand the structure and identify missing connections.
 
 **Acceptance Criteria:**
 - [ ] Blocks visually distinguish between Commons-only, Wikidata-only, and hybrid entities
-- [ ] Each block displays connection status indicators
-- [ ] File count and subcategory count are prominently displayed
-- [ ] Parent relationship type is visually indicated
-- [ ] Blocks show hover states with additional information
-- [ ] Direct links to Commons and Wikidata pages are accessible
+- [ ] **File count prominently displayed** (pictures/files in Commons category, as shown on Commons)
+- [ ] **Subcategory count prominently displayed** (as shown on Commons category pages)
+- [ ] Connection status indicators clearly show Commons category presence
+- [ ] Connection status indicators clearly show Wikidata item presence
+- [ ] **Parent relationship type explicitly shown** (connected via Commons, Wikidata, or both)
+- [ ] **Blocks default to reduced size** but expandable with button
+- [ ] **Direct clickable links** to respective Commons and Wikidata pages
+- [ ] Visual indication when both category and Wikidata item exist for same concept
 
-**Technical Notes:** Use different CSS classes/styles for block types. Implement tooltip system for hover information. Include click handlers for external links.
+**Technical Notes:** Use different CSS classes/styles for block types. Display counts exactly as Commons shows them. Implement clear connection indicators and expandable UI elements.
 
 ---
 
@@ -71,54 +75,60 @@ This document details all features and functionality of WikiMediaTree, a hierarc
 
 ---
 
-### Feature 5: Advanced Block Interactions
-**Description:** Expandable block details, drag-and-drop functionality, and context-sensitive actions for organizing and editing hierarchical structures.
+### Feature 5: Photo Organization and Hierarchy Editing
+**Description:** Expandable block details with specific drag-and-drop functionality for organizing photos/files within hierarchies, plus general editing capabilities for moving things around in hierarchical structures.
 
-**User Story:** As a Commons contributor, I want to organize photos and categories by dragging and dropping them in the hierarchy so that I can efficiently restructure content organization.
+**User Story:** As a Commons contributor, I want to **sort photos/files in hierarchies by drag and drop** and **make edits by moving things around in the hierarchy** so that I can efficiently restructure content organization and clean up hierarchical relationships.
 
 **Acceptance Criteria:**
 - [ ] Blocks can be expanded to show detailed information
-- [ ] Drag and drop functionality for moving items in hierarchy
+- [ ] **Specific drag and drop**: Sort photos/files within hierarchies using drag and drop
+- [ ] **General editing**: Make edits by moving things around in hierarchy
+- [ ] **Hierarchy cleaning**: Tools for generally understanding, exploring, and cleaning hierarchies
 - [ ] Context menus provide relevant actions for each block type
-- [ ] Bulk selection and operations for multiple blocks
+- [ ] Visual feedback during drag operations for photos/files
+- [ ] Support for organizing content within hierarchical structures
 - [ ] Undo/redo functionality for hierarchy changes
-- [ ] Visual feedback during drag operations
 
-**Technical Notes:** Implement HTML5 drag and drop API with visual feedback. Include command pattern for undo/redo functionality.
-
----
-
-### Feature 6: Wikidata Information Panel
-**Description:** Expandable side panel displaying comprehensive Wikidata item information including properties, images, and related data.
-
-**User Story:** As a researcher, I want to see detailed Wikidata information for items so that I can understand entity properties and relationships without leaving the visualization interface.
-
-**Acceptance Criteria:**
-- [ ] Side panel expands to show Wikidata item details
-- [ ] Display label, description, and instance of properties
-- [ ] Show associated images and media
-- [ ] Include relevant Wikidata properties and values
-- [ ] Links to full Wikidata item page
-- [ ] Panel can be resized and repositioned
-
-**Technical Notes:** Create responsive panel component with SPARQL query integration for fetching detailed Wikidata information.
+**Technical Notes:** Implement HTML5 drag and drop API specifically for photo/file organization within hierarchies. Include hierarchy editing tools for moving and reorganizing content. Focus on cleaning and organizing capabilities.
 
 ---
 
-### Feature 7: Visual Hierarchy Indicators
-**Description:** Visual cues showing additional parent categories, relationship types, and navigation hints to help users understand complex hierarchical structures.
+### Feature 6: Wikidata Site Panel
+**Description:** Expandable site panel triggered when a Wikidata item exists for a block, showing basic Wikidata information including label, description, instance of, image, and other relevant properties.
 
-**User Story:** As a general Wikimedian, I want to see visual indicators of hidden hierarchy branches so that I can understand the full scope of relationships and navigate efficiently.
+**User Story:** As a researcher, I want an **expandable site panel** that shows basic Wikidata item information (label, description, instance of, image, and other relevant properties) so that I can understand entity details without leaving the visualization interface.
 
 **Acceptance Criteria:**
-- [ ] Lines extending upward indicate additional parent categories
-- [ ] Hover tooltips show names of hidden parent categories
-- [ ] Click actions navigate to hidden parent hierarchies
+- [ ] **Trigger condition**: Site panel becomes available when Wikidata item exists for block
+- [ ] **Basic information display**: Label (item name)
+- [ ] **Basic information display**: Description
+- [ ] **Basic information display**: Instance of (P31) 
+- [ ] **Basic information display**: Associated image (P18)
+- [ ] **Basic information display**: Other relevant Wikidata properties and values
+- [ ] **Panel behavior**: Can be expanded and collapsed
+- [ ] **Direct linking**: Include link to full Wikidata item page
+- [ ] Site panel integrates smoothly with block interface
+
+**Technical Notes:** Create expandable site panel component (not just side panel) with SPARQL query integration. Focus on basic properties: label, description, P31 (instance of), P18 (image), plus other relevant properties.
+
+---
+
+### Feature 7: Specific Visual Hierarchy Indicators
+**Description:** Precise visual elements showing additional parent categories with specific positioning, hover behaviors, and navigation actions that transform the entire hierarchy view.
+
+**User Story:** As a general Wikimedian, I want to see **lines on the top left side moving up and disappearing** that show additional parent categories, with category names appearing on hover and click navigation that completely changes the hierarchy view.
+
+**Acceptance Criteria:**
+- [ ] **Top left lines**: Lines positioned on top left side of blocks, moving up and disappearing
+- [ ] **Hover tooltips**: Category names appear when hovering over the top left lines
+- [ ] **Click navigation behavior**: Clicking lines makes **hierarchy move, new blocks appear, old hierarchy disappears**
+- [ ] **Expandable arrows**: Little arrows pointing down for children categories/items
+- [ ] **Hierarchy switching**: When parent lines show different connection types (Commons vs Wikidata), enable switching between hierarchy views
 - [ ] Visual distinction between Commons and Wikidata relationship lines
-- [ ] Breadcrumb-style navigation indicators
-- [ ] Visual indication of relationship strength/type
+- [ ] Clear indication of which parent relationships are currently hidden
 
-**Technical Notes:** Use CSS animations and SVG graphics for visual indicators. Implement hover detection and tooltip positioning system.
+**Technical Notes:** Implement specific top-left positioning for parent indicator lines. Create hover detection system for tooltips. Implement complete hierarchy transition system where clicking replaces entire view rather than just adding elements.
 
 ---
 
@@ -139,20 +149,22 @@ This document details all features and functionality of WikiMediaTree, a hierarc
 
 ---
 
-### Feature 9: Mismatch Detection and Highlighting
-**Description:** Automatic detection and visual highlighting of inconsistencies between Commons category hierarchies and Wikidata item hierarchies.
+### Feature 9: Transition Tool for Structured Data
+**Description:** Detection and highlighting of inconsistencies between Commons category hierarchies and Wikidata item hierarchies, specifically designed as a tool for helping Wikimedia Commons transition from traditional category-based organization to structured data approach.
 
-**User Story:** As a structured data advocate, I want to identify where Commons categories and Wikidata items don't align so that I can improve consistency across Wikimedia projects.
+**User Story:** As a structured data advocate, I want to **explore where the hierarchy does not match between Wikimedia Commons and Wikidata** so that I can **create and enrich missing corresponding categories or items** and help **transition Commons from category-based to structured data organization**.
 
 **Acceptance Criteria:**
-- [ ] Automatic detection of hierarchy mismatches
+- [ ] **Hierarchy mismatch exploration**: Identify where Commons and Wikidata hierarchies don't align
+- [ ] **Missing entity identification**: Highlight where corresponding categories or items are missing
+- [ ] **Creation workflow support**: Tools for creating missing categories or items where applicable
+- [ ] **Transition support**: Help Commons transition from category-based to structured data approach
+- [ ] **Enrichment tools**: Support for enriching existing categories and items
 - [ ] Visual highlighting of inconsistent relationships
-- [ ] Suggestions for creating missing categories or items
-- [ ] Tools for reporting and tracking mismatches
-- [ ] Integration with creation workflows for missing entities
+- [ ] **Flexible assumption handling**: Work with assumption that most Commons categories have Wikidata equivalents (but not always)
 - [ ] Statistics on hierarchy alignment quality
 
-**Technical Notes:** Implement comparison algorithms between hierarchy structures. Use visual styling to highlight mismatches.
+**Technical Notes:** Implement comparison algorithms between hierarchy structures. Focus on supporting the transition from category-based to structured data organization. Include tools for creating and enriching missing entities.
 
 ---
 

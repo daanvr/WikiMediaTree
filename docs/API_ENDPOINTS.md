@@ -1,7 +1,7 @@
 # API Endpoints Documentation
 
 ## Overview
-This document describes all external API endpoints used by WikiMediaTree for fetching Commons category and Wikidata item information, including hierarchical relationships and metadata.
+This document describes all external API endpoints used by WikiMediaTree for fetching Commons category and Wikidata item information, including hierarchical relationships and metadata. **Critical**: The tool is built on the flexible assumption that most Commons categories have Wikidata item equivalents, but this is not one-to-one true - the API integration must handle categories without items and items without categories gracefully.
 
 ## API Guidelines
 - All requests must handle CORS appropriately using `origin=*` parameter
@@ -283,31 +283,125 @@ const getPageInfo = async (title, baseUrl) => {
 
 ---
 
-## Data Mapping and Correlation
+## Flexible Relationship Handling
+
+### Core Principle
+The tool operates on the **flexible assumption** that most Commons categories have Wikidata item equivalents, but this is **not one-to-one true**. The API integration must gracefully handle:
+- Commons categories without corresponding Wikidata items
+- Wikidata items without corresponding Commons categories  
+- Cases where both exist but may not be properly linked
+- Hierarchical mismatches between Commons and Wikidata structures
 
 ### Find Category-Item Relationships
-Combine Commons and Wikidata APIs to find corresponding entities.
+Combine Commons and Wikidata APIs to find corresponding entities, handling missing relationships gracefully.
 
 ```javascript
 const findCorrespondingEntities = async (categoryName) => {
-  // First, search for Wikidata items with matching Commons category
-  const wikidataQuery = `
-    SELECT ?item ?itemLabel WHERE {
-      ?item wdt:P373 "${categoryName}" .
+  try {
+    // First, search for Wikidata items with matching Commons category
+    const wikidataQuery = `
+      SELECT ?item ?itemLabel WHERE {
+        ?item wdt:P373 "${categoryName}" .
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+      }
+    `;
+    
+    const wikidataUrl = `https://query.wikidata.org/sparql?query=${encodeURIComponent(wikidataQuery)}&format=json`;
+    const wikidataResponse = await fetch(wikidataUrl);
+    const wikidataData = await wikidataResponse.json();
+    
+    // Also get Commons category information
+    const commonsData = await getCategoryInfo(categoryName);
+    
+    // Check for missing relationships
+    const hasWikidataItem = wikidataData.results.bindings.length > 0;
+    const hasCommonsCategory = commonsData.query && Object.keys(commonsData.query.pages).length > 0;
+    
+    return {
+      commons: commonsData,
+      wikidata: wikidataData,
+      relationship: {
+        hasCommonsCategory,
+        hasWikidataItem,
+        type: hasCommonsCategory && hasWikidataItem ? 'hybrid' : 
+              hasCommonsCategory ? 'commons' : 
+              hasWikidataItem ? 'wikidata' : 'none',
+        mismatch: hasCommonsCategory !== hasWikidataItem
+      }
+    };
+  } catch (error) {
+    console.error(`Error finding relationships for ${categoryName}:`, error);
+    // Return partial data even if one API fails
+    return {
+      commons: null,
+      wikidata: null,
+      relationship: { type: 'error', mismatch: true },
+      error: error.message
+    };
+  }
+};
+```
+
+### Handle Missing Wikidata Items
+When Commons categories exist but no corresponding Wikidata item is found.
+
+```javascript
+const handleMissingWikidataItem = async (categoryName) => {
+  // Get Commons category info
+  const commonsData = await getCategoryInfo(categoryName);
+  
+  // Search for potential Wikidata items with similar names
+  const searchQuery = `
+    SELECT ?item ?itemLabel ?itemDescription WHERE {
+      ?item rdfs:label ?itemLabel .
+      FILTER(LANG(?itemLabel) = "en")
+      FILTER(CONTAINS(LCASE(?itemLabel), LCASE("${categoryName.replace('Category:', '')}")))
+      OPTIONAL { ?item schema:description ?itemDescription . FILTER(LANG(?itemDescription) = "en") }
+    }
+    LIMIT 10
+  `;
+  
+  const searchUrl = `https://query.wikidata.org/sparql?query=${encodeURIComponent(searchQuery)}&format=json`;
+  const searchResponse = await fetch(searchUrl);
+  const potentialMatches = await searchResponse.json();
+  
+  return {
+    commonsData,
+    wikidataItem: null,
+    potentialMatches: potentialMatches.results.bindings,
+    status: 'commons_only',
+    suggestion: 'Consider creating Wikidata item or linking to existing item'
+  };
+};
+```
+
+### Handle Missing Commons Categories  
+When Wikidata items exist but no corresponding Commons category is found.
+
+```javascript
+const handleMissingCommonsCategory = async (wikidataItemId) => {
+  // Get Wikidata item info
+  const wikidataData = await getWikidataItem(wikidataItemId);
+  
+  // Check if item should have a Commons category
+  const categoryCheckQuery = `
+    SELECT ?item ?itemLabel ?instanceOf ?instanceOfLabel WHERE {
+      VALUES ?item { wd:${wikidataItemId} }
+      OPTIONAL { ?item wdt:P31 ?instanceOf }
       SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
     }
   `;
   
-  const wikidataUrl = `https://query.wikidata.org/sparql?query=${encodeURIComponent(wikidataQuery)}&format=json`;
-  const wikidataResponse = await fetch(wikidataUrl);
-  const wikidataData = await wikidataResponse.json();
-  
-  // Also get Commons category information
-  const commonsData = await getCategoryInfo(categoryName);
+  const checkUrl = `https://query.wikidata.org/sparql?query=${encodeURIComponent(categoryCheckQuery)}&format=json`;
+  const checkResponse = await fetch(checkUrl);
+  const itemDetails = await checkResponse.json();
   
   return {
-    commons: commonsData,
-    wikidata: wikidataData
+    wikidataData,
+    commonsCategory: null,
+    itemDetails: itemDetails.results.bindings[0],
+    status: 'wikidata_only',
+    suggestion: 'Consider creating Commons category if appropriate for this item type'
   };
 };
 ```
@@ -432,40 +526,110 @@ const apiCache = new APICache();
 
 ## Usage Examples
 
-### Complete Block Data Fetching
+### Complete Block Data Fetching with Flexible Relationships
 ```javascript
-const fetchBlockData = async (identifier, type) => {
+const fetchBlockData = async (identifier, initialType = 'unknown') => {
   try {
-    let blockData = {};
+    let blockData = {
+      id: identifier,
+      type: 'unknown',
+      commons: null,
+      wikidata: null,
+      relationship: { mismatch: false }
+    };
     
-    if (type === 'commons' || type === 'hybrid') {
-      // Fetch Commons category data
-      const categoryInfo = await getCategoryInfo(identifier);
-      const parentCategories = await getParentCategories(identifier);
-      const categoryMembers = await getCategoryMembers(identifier);
+    // First, determine what we're dealing with and find corresponding entities
+    if (identifier.startsWith('Category:') || initialType === 'commons') {
+      // Starting with Commons category
+      const relationshipData = await findCorrespondingEntities(identifier);
+      blockData.commons = relationshipData.commons;
+      blockData.wikidata = relationshipData.wikidata;
+      blockData.relationship = relationshipData.relationship;
+      blockData.type = relationshipData.relationship.type;
       
-      blockData.commons = {
-        info: categoryInfo,
-        parents: parentCategories,
-        members: categoryMembers
-      };
-    }
-    
-    if (type === 'wikidata' || type === 'hybrid') {
-      // Fetch Wikidata item data
+      // Get detailed Commons data if available
+      if (relationshipData.relationship.hasCommonsCategory) {
+        const parentCategories = await getParentCategories(identifier);
+        const categoryMembers = await getCategoryMembers(identifier);
+        
+        blockData.commons.parents = parentCategories;
+        blockData.commons.members = categoryMembers;
+      }
+      
+      // Get detailed Wikidata data if corresponding item found
+      if (relationshipData.relationship.hasWikidataItem) {
+        const wikidataItem = relationshipData.wikidata.results.bindings[0];
+        const itemId = wikidataItem.item.value.split('/').pop();
+        const itemHierarchy = await getItemHierarchy(itemId);
+        
+        blockData.wikidata.hierarchy = itemHierarchy;
+        blockData.wikidata.itemId = itemId;
+      }
+      
+    } else if (identifier.startsWith('Q') || initialType === 'wikidata') {
+      // Starting with Wikidata item
       const itemInfo = await getWikidataItem(identifier);
       const itemHierarchy = await getItemHierarchy(identifier);
+      const commonsCategory = await findCommonsCategory(identifier);
       
       blockData.wikidata = {
         info: itemInfo,
-        hierarchy: itemHierarchy
+        hierarchy: itemHierarchy,
+        itemId: identifier
       };
+      
+      // Check for corresponding Commons category
+      if (commonsCategory.results.bindings.length > 0) {
+        const categoryName = commonsCategory.results.bindings[0].commonsCategory.value;
+        const categoryInfo = await getCategoryInfo(categoryName);
+        const parentCategories = await getParentCategories(categoryName);
+        
+        blockData.commons = {
+          info: categoryInfo,
+          parents: parentCategories
+        };
+        blockData.type = 'hybrid';
+      } else {
+        blockData.type = 'wikidata';
+        blockData.relationship = {
+          hasWikidataItem: true,
+          hasCommonsCategory: false,
+          type: 'wikidata',
+          mismatch: true
+        };
+      }
     }
     
+    // Handle cases where neither or both are unknown
+    if (blockData.type === 'unknown') {
+      console.warn(`Unable to determine type for identifier: ${identifier}`);
+      blockData.relationship.type = 'error';
+    }
+    
+    // Add visual properties for block rendering
+    blockData.visual = {
+      expanded: false,
+      showSitePanel: blockData.wikidata !== null,
+      hasChildren: (blockData.commons?.members?.query?.categorymembers?.length > 0) || 
+                   (blockData.wikidata?.hierarchy?.results?.bindings?.length > 0),
+      canSwitchHierarchy: blockData.type === 'hybrid'
+    };
+    
     return blockData;
+    
   } catch (error) {
     console.error(`Failed to fetch block data for ${identifier}:`, error);
-    throw error;
+    
+    // Return error block rather than throwing
+    return {
+      id: identifier,
+      type: 'error',
+      commons: null,
+      wikidata: null,
+      relationship: { type: 'error', mismatch: true },
+      error: error.message,
+      visual: { expanded: false, showSitePanel: false, hasChildren: false }
+    };
   }
 };
 ```

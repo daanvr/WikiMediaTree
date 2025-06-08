@@ -4,17 +4,20 @@ A hierarchical visualization tool for exploring the relationships between Wikime
 
 ## Overview
 
-WikiMediaTree helps Wikimedians, developers, and content creators visualize and organize the intricate connections between Commons categories and Wikidata items. Built around a flexible block-based system, it enables users to explore hierarchical structures, identify mismatches, and support the transition from category-based to structured data organization.
+WikiMediaTree helps Wikimedians, developers, and content creators visualize and organize the intricate connections between Commons categories and Wikidata items through **user-driven exploration**. Built around a flexible block-based system, it enables manual discovery of hierarchical structures, identification of mismatches, and serves as a **transition tool** to help Wikimedia Commons move from traditional category-based organization to structured data approaches.
+
+**Critical Design Principle**: The tool does NOT automatically create or display entire trees due to the chaotic nature of real hierarchies. Instead, it provides user-controlled exploration tools for step-by-step discovery and organization.
 
 ### Key Features
 
-- **Interactive Canvas**: Pan and zoom freely across large hierarchical structures
-- **Block-Based Visualization**: Visual blocks representing Commons categories, Wikidata items, or both
-- **Hierarchical Navigation**: Family tree-like structures with expandable branches
-- **Dual Hierarchy Support**: Switch between Commons and Wikidata hierarchy views
-- **Mismatch Detection**: Identify inconsistencies between Commons and Wikidata hierarchies
-- **Drag & Drop Organization**: Reorganize content through intuitive interactions
-- **Rich Information Panels**: Detailed Wikidata item information and metadata
+- **User-Driven Canvas**: Pan freely in all directions with manual hierarchy exploration (no automatic tree generation)
+- **Detailed Block Visualization**: Visual blocks showing file counts, subcategory counts, and connection indicators exactly as shown on Commons
+- **Specific Navigation Elements**: Top left lines showing additional parents with hover tooltips and click navigation that replaces entire hierarchy view  
+- **Hierarchy Editing**: Make edits by moving things around, sort photos/files by drag and drop within hierarchies
+- **Transition Tool Support**: Help Commons transition from category-based to structured data organization
+- **Flexible Relationship Handling**: Support categories without items, items without categories, and identify missing connections
+- **Wikidata Site Panel**: Expandable panel showing label, description, instance of, image, and other relevant properties
+- **Mismatch Exploration**: Explore where Commons and Wikidata hierarchies don't align for creating missing entities
 
 ## Target Users
 
@@ -28,25 +31,30 @@ WikiMediaTree helps Wikimedians, developers, and content creators visualize and 
 
 ### Terminology
 
-- **Items**: Wikidata items (e.g., Q12345)
-- **Categories**: Wikimedia Commons categories (e.g., Category:Example)
-- **Blocks**: Visual building blocks representing categories, items, or both
-- **Canvas**: The interactive visualization area supporting pan/zoom navigation
+- **Items**: Always refers to Wikidata items (e.g., Q12345)
+- **Categories**: Always refers to Wikimedia Commons categories (e.g., Category:Example)  
+- **Blocks**: Building blocks representing either a Commons category, Wikidata item, or both
+- **Canvas**: The pannable, interactive visualization area
+- **Pictures/Files**: Terms used interchangeably - refers to media files in Commons categories
+- **Site Panel**: Expandable panel showing detailed Wikidata item information
 
-### Block System
+### Block System (Built on Flexible Assumptions)
 
-WikiMediaTree uses blocks as fundamental building units:
+WikiMediaTree operates on the **flexible assumption** that most Commons categories have Wikidata item equivalents, but this is **not one-to-one true**:
 
-- **Commons Block**: Represents a Wikimedia Commons category
-- **Wikidata Block**: Represents a Wikidata item  
-- **Hybrid Block**: Represents both a Commons category and corresponding Wikidata item
-- **Parent-Child Relationships**: Hierarchical connections between blocks
+- **Commons Block**: Represents a Commons category (may or may not have corresponding Wikidata item)
+- **Wikidata Block**: Represents a Wikidata item (may or may not have corresponding Commons category)
+- **Hybrid Block**: Represents both a Commons category and corresponding Wikidata item when both exist
+- **Parent-Child Relationships**: Each block (except root) has a parent and potential children, like in a family tree
 
-Each block displays:
-- Connection status (Commons, Wikidata, or both)
-- File count and subcategory count
-- Parent relationship indicators
-- Direct links to respective pages
+Each block displays (exactly as shown on Commons):
+- **File count**: Number of pictures/files in Commons category (prominently displayed)
+- **Subcategory count**: Number of subcategories (prominently displayed)
+- **Connection status**: Clear indicators showing Commons category presence, Wikidata item presence, or both
+- **Parent relationship type**: How the parent is connected (via Commons, Wikidata, or both)
+- **Direct links**: Clickable links to respective Commons and Wikidata pages
+- **Visual elements**: Top left lines for additional parents, expandable arrows for children
+- **Expandability**: Blocks default to reduced size but can be expanded with button
 
 ## Getting Started
 
@@ -60,9 +68,16 @@ Each block displays:
 
 1. Clone this repository
 2. Open `index.html` in your browser
-3. Start exploring by searching for a category or item
-4. Use canvas controls to pan and zoom
-5. Click blocks to expand hierarchies
+3. **Search for a specific category or item** to begin exploration
+4. **Pan freely** across the canvas in all directions using mouse/trackpad
+5. **Hover over top left lines** to see additional parent category names
+6. **Click on lines** to navigate - hierarchy will move, new blocks appear, old hierarchy disappears
+7. **Click expandable arrows** (pointing down) to grow tree in that direction
+8. **Expand blocks** with buttons to see detailed information
+9. **Use site panel** when Wikidata items exist to see detailed properties
+10. **Remove/quit parts** of the tree as needed to focus on specific areas
+
+**Remember**: This is user-driven exploration - the tool doesn't automatically create trees!
 
 ## Documentation
 

@@ -1,15 +1,17 @@
 # Architecture Documentation
 
 ## System Overview
-WikiMediaTree is a client-side hierarchical visualization application built around an interactive canvas system. The architecture centers on a block-based approach where each block represents Commons categories, Wikidata items, or both, connected in family tree-like hierarchies.
+WikiMediaTree is a client-side hierarchical visualization application built around an interactive canvas system supporting user-driven exploration of Wikimedia hierarchies. The architecture centers on a block-based approach where each block represents Commons categories, Wikidata items, or both, connected in family tree-like structures. **Critical design principle**: The tool does NOT automatically generate trees due to the chaotic nature of real hierarchies - instead, it enables user-controlled exploration and organization.
 
 ## Architecture Principles
 - Client-side only application
+- User-driven exploration (no automatic tree generation)
 - Modular component design
 - Separation of concerns
 - Modern JavaScript patterns
-- Canvas-based visualization
-- Block-centric data model
+- Canvas-based visualization with smooth navigation
+- Block-centric data model with flexible Commons-Wikidata relationships
+- Support for Commons transition to structured data
 
 ## Core Concepts
 
@@ -24,7 +26,9 @@ Blocks are the fundamental building units of WikiMediaTree:
 - **Interactive Canvas**: Pannable in all directions using Canvas API or SVG
 - **Viewport Management**: Handles visible area and coordinate transformations
 - **Zoom/Pan Controls**: Smooth navigation across large hierarchies
-- **Dynamic Loading**: Loads hierarchy data as needed during navigation
+- **Dynamic Navigation**: User-controlled hierarchy exploration with focus changes
+- **Hierarchy Transitions**: Clicking navigation elements causes hierarchy to move, new blocks appear, old hierarchy disappears
+- **Visual Indicators**: Top left lines showing additional parents, hover tooltips, expandable arrows
 
 ## System Components
 
@@ -53,26 +57,38 @@ Blocks are the fundamental building units of WikiMediaTree:
 - **DataMapper**: Maps and correlates Commons and Wikidata entities
 
 #### 5. UI Components (`src/ui/`)
-- **SidePanel**: Expandable Wikidata information panel
-- **BlockDetails**: Expandable block information display
-- **Controls**: Canvas navigation and interaction controls
-- **StatusIndicators**: Visual indicators for block types and relationships
+- **SitePanel**: Expandable side panel for detailed Wikidata item information
+- **BlockDetails**: Expandable block information display with file/subcategory counts
+- **VisualIndicators**: Top left lines, hover tooltips, and expandable arrows
+- **NavigationControls**: Canvas navigation and hierarchy transition controls  
+- **HierarchySwitcher**: Toggle between Commons and Wikidata hierarchy views
+- **StatusIndicators**: Visual indicators for block types and parent relationships
 
 ### Data Flow
 
-1. **Initial Load**
+1. **Initial Load** (User-Driven)
    ```
-   User Input → API Layer → Data Mapper → Block Factory → Hierarchy Controller → Canvas Renderer
+   User Search/Input → API Layer → Data Mapper → Block Factory → Hierarchy Controller → Canvas Renderer
    ```
 
-2. **Navigation**
+2. **Hierarchy Navigation** (Lines Click)
    ```
-   User Interaction → Event Handler → Navigation Manager → API Layer → Block Factory → Canvas Update
+   Line Click → Event Handler → Hierarchy Transition → Old Hierarchy Removal → New Block Loading → Canvas Update
    ```
 
 3. **Block Expansion**
    ```
-   Block Click → Block Manager → API Layer → Tree Builder → Hierarchy Update → Canvas Renderer
+   Arrow Click → Block Manager → API Layer → Tree Builder → Hierarchy Extension → Canvas Renderer
+   ```
+
+4. **Hierarchy Switching**
+   ```
+   Switch Trigger → Hierarchy Controller → View State Change → Block Re-rendering → Transition Animation
+   ```
+
+5. **Site Panel Display**
+   ```
+   Wikidata Block → Site Panel Trigger → SPARQL Query → Data Formatting → Panel Display
    ```
 
 ### Component Structure
@@ -98,9 +114,11 @@ WikiMediaTree/
 │   │   ├── WikidataAPI.js
 │   │   └── DataMapper.js
 │   ├── ui/
-│   │   ├── SidePanel.js
+│   │   ├── SitePanel.js
 │   │   ├── BlockDetails.js
-│   │   ├── Controls.js
+│   │   ├── VisualIndicators.js
+│   │   ├── NavigationControls.js
+│   │   ├── HierarchySwitcher.js
 │   │   └── StatusIndicators.js
 │   ├── utils/
 │   │   ├── Logger.js
@@ -149,25 +167,35 @@ WikiMediaTree/
   type: "commons|wikidata|hybrid",
   commonsData: {
     title: "Category:Example",
-    fileCount: 42,
-    subcategoryCount: 5,
+    fileCount: 42,              // Pictures/files in Commons category
+    subcategoryCount: 5,        // Subcategories (as shown on Commons)
     url: "https://commons.wikimedia.org/wiki/Category:Example"
   },
   wikidataData: {
     id: "Q12345",
     label: "Example",
     description: "An example item",
-    instanceOf: "Q54321",
-    image: "Example.jpg",
-    url: "https://www.wikidata.org/wiki/Q12345"
+    instanceOf: "Q54321",       // P31 property
+    image: "Example.jpg",       // P18 property  
+    url: "https://www.wikidata.org/wiki/Q12345",
+    otherProperties: {}         // Additional relevant properties
   },
   relationships: {
     parentId: "parent-block-id",
     childrenIds: ["child1-id", "child2-id"],
-    parentType: "commons|wikidata|both"
+    parentType: "commons|wikidata|both",  // How parent is connected
+    additionalParents: [                   // For top left lines
+      { id: "parent2-id", name: "Category:Parent2", type: "commons" },
+      { id: "parent3-id", name: "Category:Parent3", type: "wikidata" }
+    ]
   },
-  position: { x: 100, y: 200 },
-  expanded: false
+  visual: {
+    position: { x: 100, y: 200 },
+    expanded: false,
+    showSitePanel: false,
+    hasChildren: true,          // Show expandable arrow
+    canSwitchHierarchy: true    // Different connection types available
+  }
 }
 ```
 
