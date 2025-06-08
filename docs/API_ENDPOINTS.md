@@ -7,8 +7,11 @@ This document describes all external API endpoints used by WikiMediaTree for fet
 - All requests must handle CORS appropriately using `origin=*` parameter
 - Include comprehensive error handling for all endpoints
 - Implement rate limiting to respect API usage policies
-- Cache responses when appropriate to improve performance
+- **Cache responses when reasonable and size is not too big** (as per exploration-first requirements)
+- **Show clear indication to users when data is partial, stale, or cached**
+- **API activity must be clearly visible to users** through status indicators
 - Use HTTPS for all API requests
+- **Graceful degradation**: Work with cached data when APIs are slow or down
 
 ## Wikimedia Commons API
 
@@ -487,20 +490,69 @@ const makeApiRequest = async (url, maxRetries = 3) => {
 };
 ```
 
-## Caching Strategy
+## API Status Indicators
 
-### Response Caching
+### Status Indicator Requirements
+Based on exploration-first approach, users need clear visibility into API activity:
+
+```javascript
+class APIStatusManager {
+  constructor() {
+    this.currentRequests = new Set();
+    this.cache = new Map();
+    this.statusElement = null; // DOM element for status display
+  }
+  
+  startRequest(requestId, endpoint) {
+    this.currentRequests.add(requestId);
+    this.updateStatus(`Loading ${endpoint}...`, 'loading');
+  }
+  
+  completeRequest(requestId, cached = false) {
+    this.currentRequests.delete(requestId);
+    if (this.currentRequests.size === 0) {
+      this.updateStatus(cached ? 'Showing cached data' : 'Data loaded', 'complete');
+    }
+  }
+  
+  handleError(requestId, error) {
+    this.currentRequests.delete(requestId);
+    this.updateStatus(`API Error: ${error.message}`, 'error');
+  }
+  
+  updateStatus(message, type) {
+    // Update status indicator in corner of canvas or underneath
+    if (this.statusElement) {
+      this.statusElement.textContent = message;
+      this.statusElement.className = `api-status api-status--${type}`;
+    }
+  }
+}
+```
+
+## Caching Strategy with User Transparency
+
+### Response Caching with Status Indicators
 ```javascript
 class APICache {
-  constructor(ttl = 300000) { // 5 minutes default TTL
+  constructor(ttl = 300000, maxSize = 50) { // 5 minutes TTL, reasonable size limit
     this.cache = new Map();
     this.ttl = ttl;
+    this.maxSize = maxSize;
+    this.statusManager = new APIStatusManager();
   }
   
   set(key, value) {
+    // Respect size limits from Q&A #25
+    if (this.cache.size >= this.maxSize) {
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+    
     this.cache.set(key, {
       value,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      cached: true
     });
   }
   
@@ -508,12 +560,17 @@ class APICache {
     const item = this.cache.get(key);
     if (!item) return null;
     
-    if (Date.now() - item.timestamp > this.ttl) {
-      this.cache.delete(key);
-      return null;
+    const isStale = Date.now() - item.timestamp > this.ttl;
+    
+    if (isStale) {
+      // Keep stale data but indicate it's stale
+      item.stale = true;
+      this.statusManager.updateStatus('Showing stale data', 'stale');
+    } else if (item.cached) {
+      this.statusManager.updateStatus('Showing cached data', 'cached');
     }
     
-    return item.value;
+    return item;
   }
   
   clear() {
@@ -524,9 +581,80 @@ class APICache {
 const apiCache = new APICache();
 ```
 
+## External Link Generation
+
+### Missing Entity Creation Links
+Based on Q&A #15, when entities are missing, provide direct links to creation pages with URL parameters:
+
+```javascript
+class ExternalLinkGenerator {
+  
+  static generateCommonsCreationLink(parentCategory = null, suggestedName = null) {
+    const baseUrl = 'https://commons.wikimedia.org/wiki/Special:CreatePage';
+    const params = new URLSearchParams();
+    
+    if (parentCategory) {
+      params.append('parent', parentCategory);
+    }
+    if (suggestedName) {
+      params.append('title', `Category:${suggestedName}`);
+    }
+    
+    return `${baseUrl}?${params.toString()}`;
+  }
+  
+  static generateWikidataCreationLink(instanceOf = null, label = null) {
+    const baseUrl = 'https://www.wikidata.org/wiki/Special:NewItem';
+    const params = new URLSearchParams();
+    
+    if (instanceOf) {
+      params.append('instanceOf', instanceOf);
+    }
+    if (label) {
+      params.append('label', label);
+    }
+    
+    return `${baseUrl}?${params.toString()}`;
+  }
+  
+  static generateDirectLinks(blockData) {
+    const links = {
+      commons: null,
+      wikidata: null,
+      createCommons: null,
+      createWikidata: null
+    };
+    
+    // Direct links to existing pages
+    if (blockData.commonsData) {
+      links.commons = blockData.commonsData.url;
+    }
+    if (blockData.wikidataData) {
+      links.wikidata = blockData.wikidataData.url;
+    }
+    
+    // Creation links for missing entities
+    if (!blockData.commonsData && blockData.wikidataData) {
+      links.createCommons = this.generateCommonsCreationLink(
+        blockData.relationships?.parentId, 
+        blockData.wikidataData.label
+      );
+    }
+    if (!blockData.wikidataData && blockData.commonsData) {
+      links.createWikidata = this.generateWikidataCreationLink(
+        null, // Would need to determine appropriate instance of
+        blockData.commonsData.title.replace('Category:', '')
+      );
+    }
+    
+    return links;
+  }
+}
+```
+
 ## Usage Examples
 
-### Complete Block Data Fetching with Flexible Relationships
+### Complete Block Data Fetching with API Status Integration
 ```javascript
 const fetchBlockData = async (identifier, initialType = 'unknown') => {
   try {
